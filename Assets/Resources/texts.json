@@ -1,7 +1,14 @@
 {
-"wow":[ "Ford", "BMW", "Fiat" ],
-"many":[ "riches", "sunshine", "worries" ],
-"such":[ "crypto", "tempt", "treat" ],
-"very":[ "shiba", "alarms", "moon" ],
-"much":[ "awake", "scare", "coin" ],
+"wow":[ "wow", "wau", "oi" ],
+"many":[
+			["riches", "sunshine", "shiba", "coin" ],
+			["boring", "sleepy", "procastinating"]
+			[ "troubles, worries, shiver"],
+			],
+"so":[ "exactly", "about", "close to" ],
+"very":[
+		[ "supa", "happy", "wuawau" ],
+		["sceptic", "unsure", "perplexed"],
+		[ "desasterus", "scare", "bad" ],
+		],
 } 

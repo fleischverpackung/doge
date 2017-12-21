@@ -4,7 +4,12 @@ using SimpleJSON;
 
 public class newGet : MonoBehaviour
 {
-    public string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
+    private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
+    
+
+    
+
+
     IEnumerator Start()
     {
         using (WWW www = new WWW(url))
@@ -15,12 +20,22 @@ public class newGet : MonoBehaviour
 
             if (www.text != null)
             {
-                Debug.Log("JSONCONTENT: " + www.text);
+                
                 var N = JSON.Parse(www.text);
-                var name = N["ticker"]["price"];
-                Debug.Log("JSON PRICE: " + name);
+                Debug.Log("JSONCONTENT: " + www.text);
+                string price = N["ticker"]["price"];
+                string change = N["ticker"]["change"];
+
+                Debug.Log("price = " + price + "change = " + change);
+
+
+                central.Instance.SetPrice(float.Parse(price));
+                //central.Instance.GetLevel
+                //obj.SetChange(float.Parse(change));
+                
 
             }
         }
     }
+    
 }
