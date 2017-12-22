@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class newGet : MonoBehaviour
 {
     public Text hud;
+    public Text hud2;
 
     private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
     string path = "Assets/Resources/texts.json";
@@ -42,34 +43,40 @@ public class newGet : MonoBehaviour
 
     private void Update()
     {
-       hud.text = Input.gyro.attitude.ToString();
+       hud.text = "Gyro: " + Input.gyro.attitude.ToString();
+       hud2.text = "price = " + price + "| change = " + change;
     }
 
   
 
     IEnumerator GetUrl()
     {
-        using (WWW www = new WWW(url))
+        while(true)
         {
-            yield return www;
-            if (!string.IsNullOrEmpty(www.error))
-                Debug.Log(www.error);
-
-            if (www.text != null)
+            using (WWW www = new WWW(url))
             {
+                yield return www;
+                if (!string.IsNullOrEmpty(www.error))
+                    Debug.Log(www.error);
 
-                var N = JSON.Parse(www.text);
-                Debug.Log("JSONCONTENT: " + www.text);
+                if (www.text != null)
+                {
 
-                priceOld = price;
-                price = double.Parse(N["ticker"]["price"], System.Globalization.NumberStyles.Any);
-                changeOld = change;
-                change = double.Parse(N["ticker"]["change"], System.Globalization.NumberStyles.Any);
-                Debug.Log("price = " + price + "change = " + change);
+                    var N = JSON.Parse(www.text);
+                    //Debug.Log("JSONCONTENT: " + www.text);
 
-                GetLevel();
-            }  
+                    priceOld = price;
+                    price = double.Parse(N["ticker"]["price"], System.Globalization.NumberStyles.Any);
+                    changeOld = change;
+                    change = double.Parse(N["ticker"]["change"], System.Globalization.NumberStyles.Any);
+                    Debug.Log("price = " + price + "change = " + change);
+
+                    GetLevel();
+                }
+                yield return new WaitForSeconds(10);
+            }
         }
+       
     }
 
     void GetLevel()
