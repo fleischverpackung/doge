@@ -7,7 +7,8 @@ public class coinDispenser : MonoBehaviour {
     public Object[] pickupPrefabs;
     public AudioSource _audioSource;
     public AudioClip[] _audioClip;
-    private int dropArea = 5;
+    private int dropArea = 4;
+    private int dropHeight = 6;
     private float dispenseInterval = 0.3f;
     private int maxCoins = 200;
     private int timer = 0;
@@ -32,7 +33,7 @@ public class coinDispenser : MonoBehaviour {
             if (doDispense)
             {
                 //int drugCase = (Random.Range(0, 4));
-                Vector3 pos = new Vector3(Random.Range(-dropArea, dropArea), Random.Range(-dropArea, dropArea), Random.Range(-dropArea, dropArea));
+                Vector3 pos = new Vector3(Random.Range(-dropArea, dropArea), Random.Range(0, dropHeight), Random.Range(-dropArea, dropArea));
                
                 Instantiate(pickupPrefabs[0], pos, Quaternion.identity);
                 //clone.rigidbody.AddForce(transform.forward * 8000);

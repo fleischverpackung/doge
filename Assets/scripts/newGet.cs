@@ -5,12 +5,36 @@ using SimpleJSON;
 public class newGet : MonoBehaviour
 {
     private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
-    
+    string path = "Assets/Resources/texts.json";
+    TextMesh[] textfields;
+    GameObject[] text3d;
+    JSONNode content;
+    private double price;
+    private double priceOld;
+    private double change;
+    private double changeOld;
 
-    
+    private int level;
 
 
-    IEnumerator Start()
+    void Start()
+    {
+        text3d = GameObject.FindGameObjectsWithTag("text");
+        Debug.Log("Found GameObjects: " + text3d[0]);
+
+        StartCoroutine(GetUrl());
+
+        ReadFile();
+
+        StartCoroutine(SetTexts());
+    }
+
+    private void Update()
+    {
+        
+    }
+
+    IEnumerator GetUrl()
     {
         using (WWW www = new WWW(url))
         {
@@ -20,22 +44,60 @@ public class newGet : MonoBehaviour
 
             if (www.text != null)
             {
-                
+
                 var N = JSON.Parse(www.text);
                 Debug.Log("JSONCONTENT: " + www.text);
-                string price = N["ticker"]["price"];
-                string change = N["ticker"]["change"];
 
+                priceOld = price;
+                price = double.Parse(N["ticker"]["price"], System.Globalization.NumberStyles.Any);
+                changeOld = change;
+                change = double.Parse(N["ticker"]["change"], System.Globalization.NumberStyles.Any);
                 Debug.Log("price = " + price + "change = " + change);
 
-
-                central.Instance.SetPrice(float.Parse(price));
-                //central.Instance.GetLevel
-                //obj.SetChange(float.Parse(change));
-                
-
-            }
+                GetLevel();
+            }  
         }
     }
+
+    void GetLevel()
+    {
+        if (change > 0.001f)
+            level = 2;
+        else if (change > 0.0001f)
+            level = 1;
+        else if (change > 0.00001f)
+            level = 0;
+    }
+
+    IEnumerator SetTexts()
+    {
+        while (true)
+        {
+
+        
+            int rnd = Random.Range(0, 2);
+            Debug.Log("RANDOM: " + rnd);
+        
+
+            text3d[0].GetComponent<TextMesh>().text = content["wow"][rnd];
+            text3d[1].GetComponent<TextMesh>().text = "many " + content["many"][level][rnd];
+            text3d[2].GetComponent<TextMesh>().text = "so " + content["so"][rnd];
+            text3d[3].GetComponent<TextMesh>().text = "very " + content["very"][level][rnd];
+            text3d[4].GetComponent<TextMesh>().text = "much " + content["much"][rnd];
+
+            yield return new WaitForSeconds(.5f);
+        }
+    }    
+
+
+    void ReadFile()
+    {
+        string text = System.IO.File.ReadAllText(path);
+        Debug.Log("TEXTS JSON FILE " + text);
+
+        var N = JSON.Parse(text);
+        content = N;
+    }
     
+
 }
