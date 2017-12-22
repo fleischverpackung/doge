@@ -13,10 +13,11 @@ public class coinDispenser : MonoBehaviour {
     private int maxCoins = 200;
     private int timer = 0;
     private bool doDispense = true;
-    private Vector3 posShiba;
+    
 
-    // Use this for initialization
+
     void Start () {
+
         StartCoroutine(DispenserOn());
 	}
 	

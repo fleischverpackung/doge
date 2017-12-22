@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 using SimpleJSON;
+using UnityEngine.UI;
 
 public class newGet : MonoBehaviour
 {
+    public Text hud;
+
     private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
     string path = "Assets/Resources/texts.json";
+
+
+    GameObject cam;
     TextMesh[] textfields;
     GameObject[] text3d;
     JSONNode content;
@@ -14,13 +20,18 @@ public class newGet : MonoBehaviour
     private double change;
     private double changeOld;
 
+    private Vector3 gyro;
+
     private int level;
 
 
     void Start()
     {
+        cam = GameObject.FindGameObjectWithTag("MainCamera");
         text3d = GameObject.FindGameObjectsWithTag("text");
-        Debug.Log("Found GameObjects: " + text3d[0]);
+        //Debug.Log("Found GameObjects: " + text3d[0]);
+
+        Input.gyro.enabled = true;
 
         StartCoroutine(GetUrl());
 
@@ -31,8 +42,10 @@ public class newGet : MonoBehaviour
 
     private void Update()
     {
-        
+       hud.text = Input.gyro.attitude.ToString();
     }
+
+  
 
     IEnumerator GetUrl()
     {
