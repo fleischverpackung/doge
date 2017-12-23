@@ -28,22 +28,26 @@ public class newGet : MonoBehaviour
     TextMesh[] textfields;
     GameObject[] text3d;
     JSONNode content;
-    private double price;
-    private double priceOld;
-    private double change;
-    private double changeOld;
+    ParticleSystem particles;
+    private float price;
+    private float priceOld;
+    private float change;
+    private float changeOld;
 
     private Vector3 gyro;
-
     private int level;
+    private float coinReferenceValue = 0.00613704f;
+    private float coinPercentage;
 
 
     void Start()
     {
-        cam = GameObject.FindGameObjectWithTag("MainCamera");
-        shiba = GameObject.FindGameObjectWithTag("shiba");
-        text3d = GameObject.FindGameObjectsWithTag("text");
-        bigTexture = GameObject.Find("LevelTexture").GetComponent<MeshRenderer>();
+        //text3d = GameObject.FindGameObjectsWithTag("text");
+        text3d[0] = GameObject.Find("txt_wow");
+        text3d[1] = GameObject.Find("txt_many");
+        text3d[2] = GameObject.Find("txt_so");
+        text3d[3] = GameObject.Find("txt_very");
+        text3d[4] = GameObject.Find("txt_much");        
 
         debug_gyro = GameObject.Find("text_gyro").GetComponent<Text>();
         debug_http = GameObject.Find("text_http").GetComponent<Text>();
@@ -52,6 +56,10 @@ public class newGet : MonoBehaviour
 
         dogAudio = Resources.LoadAll<AudioClip>("dogeAudio");
         dogelevelTextures = Resources.LoadAll<Material>("dogeTextureslevel");
+        bigTexture = GameObject.Find("LevelTexture").GetComponent<MeshRenderer>();
+        particles = GameObject.Find("ParticleSystem").GetComponent<ParticleSystem>();
+        cam = GameObject.FindGameObjectWithTag("MainCamera");
+        shiba = GameObject.Find("Doge");
 
 
 
@@ -95,18 +103,21 @@ public class newGet : MonoBehaviour
                     var N = JSON.Parse(www.text);
 
                     priceOld = price;
-                    price = double.Parse(N["ticker"]["price"], System.Globalization.NumberStyles.Any); // prevent error small numbers "Ex007m" etc..
+                    price = float.Parse(N["ticker"]["price"]);
                     changeOld = change;
-                    change = double.Parse(N["ticker"]["change"], System.Globalization.NumberStyles.Any);
-                    //Debug.Log("price = " + price + "change = " + change);
+                    change = float.Parse(N["ticker"]["change"]);
 
                     CheckLevel();
                     PlayDogeAudio();
                     StartCoroutine(ShowDogeTexture());
 
+                //    particles.emission.rateOverTime = 100f;
+
+                    coinPercentage = (100 / coinReferenceValue) * price;
+
                     //Debug on Canvas
                     debug_error.text = "connection established";
-                    debug_http.text = "price = " + price + "| change = " + change;
+                    //debug_http.text = coinPercentage.ToString("0.000") + "% " +  "price = " + price.ToString("0.000000") + "| change = " + change.ToString("0.000000");
                     debug_level.text = "LEVEL: " + level;
                 }
                 yield return new WaitForSeconds(refreshIntervalHTTP);
@@ -116,40 +127,29 @@ public class newGet : MonoBehaviour
     }
 
     void CheckLevel()
-    {
-        /*
-        if (change > 0.001f)
-            level = 2;
-        else if (change > 0.0001f)
-            level = 1;
-        else if (change > 0.00001f)
-            level = 0;
-            */
+    {        
         if (price < priceOld)
             level = 0;
         else if (price == priceOld)
             level = 1;
         else if (price > priceOld)
             level = 2;
-
-        
-
-        
     }
+
+    
 
     void PlayDogeAudio()
     {
         int randomSound = Random.Range(0, 3);
         _audioSource.PlayOneShot(dogAudio[(level * 4) + randomSound]);
-        Debug.Log("LEVEL = " + level + "RANDOM = " + randomSound);
-        Debug.Log("Play Dogsound Nr. " + ((level * 4) + randomSound));
-        Debug.Log("AudioArray: " + dogAudio.Length);
+        Debug.Log("AudioArrayLength: " + dogAudio.Length + "LEVEL = " + level + "RANDOM = " + randomSound + "Play Dogsound Nr. " + ((level * 4) + randomSound));
     }
 
     IEnumerator ShowDogeTexture()
     {        
         bigTexture.material = dogelevelTextures[level];
         bigTexture.enabled = true;
+       //bigTexture.transform.position + new Vector3 (0, 0,  += 0.5f * Time.deltaTime;)
         yield return new WaitForSeconds(5);
         bigTexture.enabled = false;
     }
@@ -158,8 +158,7 @@ public class newGet : MonoBehaviour
     {
         while (true)
         {
-
-        
+                   
             int randomTextContent = Random.Range(0, 2);
             int randomTextField = Random.Range(0, 4);
             //Debug.Log("RANDOM: " + randomTextContent);
@@ -173,7 +172,7 @@ public class newGet : MonoBehaviour
                     text3d[1].GetComponent<TextMesh>().text = "many " + content["many"][level][randomTextContent];
                     break;
                 case 2:
-                    text3d[2].GetComponent<TextMesh>().text = "so " + content["so"][randomTextContent];
+                    text3d[2].GetComponent<TextMesh>().text = "so " + content["so"][randomTextContent] + " " + coinPercentage.ToString("0,00") + "%" ;
                     break;
                 case 3:
                     text3d[3].GetComponent<TextMesh>().text = "very " + content["very"][level][randomTextContent];
@@ -217,6 +216,24 @@ public class newGet : MonoBehaviour
         transform.position = rotation * radius;
     }
     */
-    
+
+        /*
+    float Remap(this float value, float from1, float to1, float from2, float to2)
+    {
+        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+    }*/
 
 }
+
+/*
+public static class ExtensionMethods
+{
+
+    public static float Remap(this float value, float from1, float to1, float from2, float to2)
+    {
+        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+    }
+
+}
+*/
+
