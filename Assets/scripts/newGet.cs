@@ -16,6 +16,9 @@ public class newGet : MonoBehaviour
     public AudioSource _audioSource;
     private AudioClip[] dogAudio;
 
+    private MeshRenderer bigTexture;
+    private Material[] dogelevelTextures;
+
     private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
     string path = "Assets/Resources/texts.json";
 
@@ -40,12 +43,15 @@ public class newGet : MonoBehaviour
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         shiba = GameObject.FindGameObjectWithTag("shiba");
         text3d = GameObject.FindGameObjectsWithTag("text");
+        bigTexture = GameObject.Find("LevelTexture").GetComponent<MeshRenderer>();
+
         debug_gyro = GameObject.Find("text_gyro").GetComponent<Text>();
         debug_http = GameObject.Find("text_http").GetComponent<Text>();
         debug_level = GameObject.Find("text_level").GetComponent<Text>();
         debug_error = GameObject.Find("text_error").GetComponent<Text>();
 
-        dogAudio = Resources.LoadAll<AudioClip>("dogAudio");
+        dogAudio = Resources.LoadAll<AudioClip>("dogeAudio");
+        dogelevelTextures = Resources.LoadAll<Material>("dogeTextureslevel");
 
 
 
@@ -95,6 +101,8 @@ public class newGet : MonoBehaviour
                     //Debug.Log("price = " + price + "change = " + change);
 
                     CheckLevel();
+                    PlayDogeAudio();
+                    StartCoroutine(ShowDogeTexture());
 
                     //Debug on Canvas
                     debug_error.text = "connection established";
@@ -124,11 +132,26 @@ public class newGet : MonoBehaviour
         else if (price > priceOld)
             level = 2;
 
+        
+
+        
+    }
+
+    void PlayDogeAudio()
+    {
         int randomSound = Random.Range(0, 3);
-        _audioSource.PlayOneShot(dogAudio[(level * 4) +randomSound]);
+        _audioSource.PlayOneShot(dogAudio[(level * 4) + randomSound]);
         Debug.Log("LEVEL = " + level + "RANDOM = " + randomSound);
         Debug.Log("Play Dogsound Nr. " + ((level * 4) + randomSound));
         Debug.Log("AudioArray: " + dogAudio.Length);
+    }
+
+    IEnumerator ShowDogeTexture()
+    {        
+        bigTexture.material = dogelevelTextures[level];
+        bigTexture.enabled = true;
+        yield return new WaitForSeconds(5);
+        bigTexture.enabled = false;
     }
 
     IEnumerator SetTexts()
@@ -175,6 +198,11 @@ public class newGet : MonoBehaviour
     void RotateDoge()
     {
         shiba.transform.Rotate(Vector3.up, 3 * Time.deltaTime);
+    }
+
+    void ShowLevelTexture()
+    {
+
     }
 
     /*
