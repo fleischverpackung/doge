@@ -1,0 +1,6 @@
+Download Java JRE
+Download Android SDK (commandlineTools)
+Download Jave JDK
+
+Install JRE
+Install 
