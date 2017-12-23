@@ -10,7 +10,7 @@ public class newGet : MonoBehaviour
     private Text debug_level;
     private Text debug_error;
 
-    private float refreshIntervalHTTP = 5;
+    private float refreshIntervalHTTP = 7;
     private float refreshIntervalTEXT = 0.3f;
 
     public AudioSource _audioSource;
@@ -70,7 +70,7 @@ public class newGet : MonoBehaviour
 
         StartCoroutine(GetUrl());
 
-        //moveCamera();
+        moveCamera();
 
         ReadFile();
 
@@ -80,20 +80,17 @@ public class newGet : MonoBehaviour
     private void Update()
     {
         Vector3 deviceRotation = Input.gyro.attitude.eulerAngles;
-
         debug_gyro.text = "Gyro: " + deviceRotation.ToString();
 
-        
-
         RotateDoge();
-        //doge.transform.Rotate(deviceRotation);
     }
+
+
 
     void moveCamera()
     {
         var dogePos = doge.transform.position;
-        Debug.Log("dogepos: " + dogePos);
-        cam.transform.LookAt(dogePos);
+        //cam.transform.LookAt(dogePos);
     }
 
   
@@ -128,7 +125,7 @@ public class newGet : MonoBehaviour
 
                     //Debug on Canvas
                     debug_error.text = "connection established";
-                    //debug_http.text = coinPercentage.ToString("0.000") + "% " +  "price = " + price.ToString("0.000000") + "| change = " + change.ToString("0.000000");
+                    debug_http.text = coinPercentage.ToString("0.000") + "% " +  "price = " + price.ToString("0.000000") + "| change = " + change.ToString("0.000000");
                     debug_level.text = "LEVEL: " + level;
                 }
                 yield return new WaitForSeconds(refreshIntervalHTTP);
@@ -152,7 +149,7 @@ public class newGet : MonoBehaviour
     void PlayDogeAudio()
     {
         int randomSound = Random.Range(0, 3);
-        _audioSource.PlayOneShot(dogAudio[(level * 4) + randomSound]);
+        _audioSource.PlayOneShot(dogAudio[(level * 7) + randomSound]);
         Debug.Log("AudioArrayLength: " + dogAudio.Length + "LEVEL = " + level + "RANDOM = " + randomSound + "Play Dogsound Nr. " + ((level * 4) + randomSound));
     }
 
@@ -161,7 +158,7 @@ public class newGet : MonoBehaviour
         bigTexture.material = dogelevelTextures[level];
         bigTexture.enabled = true;
        //bigTexture.transform.position + new Vector3 (0, 0,  += 0.5f * Time.deltaTime;)
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(4);
         bigTexture.enabled = false;
     }
 
@@ -170,8 +167,8 @@ public class newGet : MonoBehaviour
         while (true)
         {
                    
-            int randomTextContent = Random.Range(0, 2);
-            int randomTextField = Random.Range(0, 4);
+            int randomTextContent = Random.Range(0, 3);
+            int randomTextField = Random.Range(0, 5);
             //Debug.Log("RANDOM: " + randomTextContent);
         
             switch (randomTextField)
@@ -183,13 +180,13 @@ public class newGet : MonoBehaviour
                     text3d[1].GetComponent<TextMesh>().text = "many " + content["many"][level][randomTextContent];
                     break;
                 case 2:
-                    text3d[2].GetComponent<TextMesh>().text = "so " + content["so"][randomTextContent] + " " + coinPercentage.ToString("0,00") + "%" ;
+                    text3d[2].GetComponent<TextMesh>().text = "much " + content["much"][randomTextContent]; 
                     break;
                 case 3:
                     text3d[3].GetComponent<TextMesh>().text = "very " + content["very"][level][randomTextContent];
                     break;
                 case 4:
-                    text3d[4].GetComponent<TextMesh>().text = "much " + content["much"][randomTextContent];
+                    text3d[4].GetComponent<TextMesh>().text = "so " + content["so"][randomTextContent] + " " + coinPercentage.ToString("0,00") + "%";
                     break;
             }
             yield return new WaitForSeconds(refreshIntervalTEXT);

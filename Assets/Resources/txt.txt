@@ -1,15 +1,15 @@
 {
-"wow":[ "wow.", "wow.", "wow." ],
+"wow":[ "wow.", "wow.", "wow.", "wow." ],
 "many":[
-			["troubles", "worries", "shiver"],
-			["boring", "sleepy", "procastinating"],
-			["riches", "sunshine", "coin" ]
+			["troubles", "worries", "shiver", "frighten"],
+			["boring", "sleepy", "procastinating", "yawny"],
+			["riches", "sunshine", "coin", "bling bling" ]
 		],
-"so":[ "exactly", "about", "close to" ],
+"so":[ "exactly", "about", "close to", "absolutely" ],
 "very":[
-		[ "desasterus", "scare", "bad" ],
-		["sceptic", "unsure", "perplexed"],
-		[ "frolic", "happy", "jumpy" ]
+		[ "desasterus", "scare", "bad", "frighten" ],
+		["sceptic", "unsure", "perplexed", "doubt"],
+		[ "frolic", "happy", "jumpy", "blessed"]
 		],
-"much":[ "doge", "crypto", "shiba"],
+"much":[ "doge", "crypto", "shiba", "doggo"],
 } 
