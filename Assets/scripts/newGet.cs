@@ -13,6 +13,9 @@ public class newGet : MonoBehaviour
     private float refreshIntervalHTTP = 5;
     private float refreshIntervalTEXT = 0.3f;
 
+    public AudioSource _audioSource;
+    private AudioClip[] dogAudio;
+
     private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
     string path = "Assets/Resources/texts.json";
 
@@ -41,7 +44,11 @@ public class newGet : MonoBehaviour
         debug_http = GameObject.Find("text_http").GetComponent<Text>();
         debug_level = GameObject.Find("text_level").GetComponent<Text>();
         debug_error = GameObject.Find("text_error").GetComponent<Text>();
-        //Debug.Log("Found GameObjects: " + text3d[0]);
+
+        dogAudio = Resources.LoadAll<AudioClip>("dogAudio");
+
+
+
 
         Input.gyro.enabled = true;
 
@@ -116,6 +123,12 @@ public class newGet : MonoBehaviour
             level = 1;
         else if (price > priceOld)
             level = 2;
+
+        int randomSound = Random.Range(0, 3);
+        _audioSource.PlayOneShot(dogAudio[(level * 4) +randomSound]);
+        Debug.Log("LEVEL = " + level + "RANDOM = " + randomSound);
+        Debug.Log("Play Dogsound Nr. " + ((level * 4) + randomSound));
+        Debug.Log("AudioArray: " + dogAudio.Length);
     }
 
     IEnumerator SetTexts()
@@ -125,10 +138,10 @@ public class newGet : MonoBehaviour
 
         
             int randomTextContent = Random.Range(0, 2);
-            int randomTextid = Random.Range(0, 4);
-            Debug.Log("RANDOM: " + randomTextContent);
+            int randomTextField = Random.Range(0, 4);
+            //Debug.Log("RANDOM: " + randomTextContent);
         
-            switch (randomTextid)
+            switch (randomTextField)
             {
                 case 0:
                     text3d[0].GetComponent<TextMesh>().text = content["wow"][randomTextContent];
@@ -155,7 +168,6 @@ public class newGet : MonoBehaviour
     {
         string text = System.IO.File.ReadAllText(path);
         Debug.Log("TEXTS JSON FILE " + text);
-
         var N = JSON.Parse(text);
         content = N;
     }
