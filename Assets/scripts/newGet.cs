@@ -5,28 +5,32 @@ using UnityEngine.UI;
 
 public class newGet : MonoBehaviour
 {
-    private Text debug_gyro;
-    private Text debug_http;
-    private Text debug_level;
-    private Text debug_error;
 
-    private float refreshIntervalHTTP = 7;
-    private float refreshIntervalTEXT = 0.3f;
+    public Object coin;
+    private float dropArea = 4f;
+    private float dispenserInterval = 0.1f;
+    public float coinTarget;
+
+    private Text debug_error;
+    
+    private TextMesh[] textfields;
+    private GameObject[] textObj;
+    private Vector3[] textPos;
+
+    private float refreshIntervalHTTP = 8;
+    private float refreshIntervalTEXT = .3f;    
 
     public AudioSource _audioSource;
     private AudioClip[] dogAudio;
+    private AudioClip[] coinAudio;
 
     private MeshRenderer bigTexture;
     private Material[] dogelevelTextures;
 
     private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
-    //string path = "Assets/Resources/texts.json";
-
 
     GameObject cam;
     GameObject doge;
-    TextMesh[] textfields;
-    GameObject[] text3d;
     JSONNode content;
     ParticleSystem particles;
     private float price;
@@ -42,7 +46,12 @@ public class newGet : MonoBehaviour
 
     void Start()
     {
-        text3d = GameObject.FindGameObjectsWithTag("text");
+        textObj = GameObject.FindGameObjectsWithTag("text");
+        textPos = new Vector3[textObj.Length];
+        for (int i=0; i < textObj.Length; i++ )
+        {
+            textPos[i] = textObj[i].transform.position;
+        }
         /*
         text3d[0] = GameObject.Find("txt_wow");
         text3d[1] = GameObject.Find("txt_many");
@@ -50,50 +59,41 @@ public class newGet : MonoBehaviour
         text3d[3] = GameObject.Find("txt_very");
         text3d[4] = GameObject.Find("txt_much");        
         */
-
-        debug_gyro = GameObject.Find("text_gyro").GetComponent<Text>();
-        debug_http = GameObject.Find("text_http").GetComponent<Text>();
-        debug_level = GameObject.Find("text_level").GetComponent<Text>();
+        
         debug_error = GameObject.Find("text_error").GetComponent<Text>();
-
         dogAudio = Resources.LoadAll<AudioClip>("dogeAudio");
+        coinAudio = Resources.LoadAll<AudioClip>("coinAudio");
         dogelevelTextures = Resources.LoadAll<Material>("dogeTextureslevel");
         bigTexture = GameObject.Find("LevelTexture").GetComponent<MeshRenderer>();
         particles = GameObject.Find("ParticleSystem").GetComponent<ParticleSystem>();
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         doge = GameObject.Find("Doge");
 
-
-        
-
         Input.gyro.enabled = true;
-
-        StartCoroutine(GetUrl());
-
-        moveCamera();
-
         ReadFile();
-
+        StartCoroutine(GetUrl());        
         StartCoroutine(SetTexts());
+        StartCoroutine(DispenseCoins());
     }
 
     private void Update()
     {
         Vector3 deviceRotation = Input.gyro.attitude.eulerAngles;
-        debug_gyro.text = "Gyro: " + deviceRotation.ToString();
-
-        RotateDoge();
+        coinTarget = Mathf.Round(ExtensionMethods.Remap(coinPercentage, 0, 300, 0, 500));
+        doge.transform.Rotate(Vector3.up, 3 * Time.deltaTime);
+        MoveCamera();
     }
 
 
 
-    void moveCamera()
+    void MoveCamera()
     {
         var dogePos = doge.transform.position;
-        //cam.transform.LookAt(dogePos);
+        var newRotation = cam.transform.rotation.eulerAngles;
+        cam.transform.eulerAngles = gyro;
     }
 
-  
+   
 
     IEnumerator GetUrl()
     {
@@ -104,11 +104,12 @@ public class newGet : MonoBehaviour
                 yield return www;
                 if (!string.IsNullOrEmpty(www.error))
                     //Debug.Log(www.error);
-                    debug_level.text = www.error;
+                    debug_error.text = www.error;
 
                 if (www.text != null)
                 {
                     var N = JSON.Parse(www.text);
+                    debug_error.text = "";
 
                     priceOld = price;
                     price = float.Parse(N["ticker"]["price"]);
@@ -118,16 +119,8 @@ public class newGet : MonoBehaviour
                     CheckLevel();
                     PlayDogeAudio();
                     StartCoroutine(ShowDogeTexture());
-
-                   //particles.emission.rateOverTime = 100f;
-
                     coinPercentage = (100 / coinReferenceValue) * price;
-
-                    //Debug on Canvas
-                    debug_error.text = "connection established";
-                    debug_http.text = coinPercentage.ToString("0.000") + "% " +  "price = " + price.ToString("0.000000") + "| change = " + change.ToString("0.000000");
-                    debug_level.text = "LEVEL: " + level;
-                }
+                    }
                 yield return new WaitForSeconds(refreshIntervalHTTP);
             }
         }
@@ -144,13 +137,37 @@ public class newGet : MonoBehaviour
             level = 2;
     }
 
-    
+    IEnumerator DispenseCoins()
+    {
+        while (true)
+        {
+            int spawnedCoins = GameObject.FindGameObjectsWithTag("coin").Length;
+            if (spawnedCoins < coinTarget)
+            {
+                Vector3 pos = new Vector3(Random.Range(-dropArea, dropArea), Random.Range(-dropArea, dropArea), Random.Range(3, 4));
+                Instantiate(coin, pos, Quaternion.identity);
+                _audioSource.PlayOneShot(coinAudio[Random.Range(0, coinAudio.Length)]);
+            }
+            if (spawnedCoins > coinTarget)
+            {
+                Destroy(GameObject.FindGameObjectWithTag("coin"));
+            }
+            yield return new WaitForSecondsRealtime(dispenserInterval);
+        }
+    }
+
+
 
     void PlayDogeAudio()
     {
         int randomSound = Random.Range(0, 3);
         _audioSource.PlayOneShot(dogAudio[(level * 7) + randomSound]);
-        Debug.Log("AudioArrayLength: " + dogAudio.Length + "LEVEL = " + level + "RANDOM = " + randomSound + "Play Dogsound Nr. " + ((level * 4) + randomSound));
+        /*
+        if (level == 2)
+        {
+            Handheld.Vibrate();
+        }
+        */
     }
 
     IEnumerator ShowDogeTexture()
@@ -165,30 +182,30 @@ public class newGet : MonoBehaviour
     IEnumerator SetTexts()
     {
         while (true)
-        {
-                   
+        {                   
             int randomTextContent = Random.Range(0, 3);
             int randomTextField = Random.Range(0, 5);
-            //Debug.Log("RANDOM: " + randomTextContent);
         
             switch (randomTextField)
             {
                 case 0:
-                    text3d[0].GetComponent<TextMesh>().text = content["wow"][randomTextContent];
+                    textObj[0].GetComponent<TextMesh>().text = content["wow"][randomTextContent];
                     break;
                 case 1:
-                    text3d[1].GetComponent<TextMesh>().text = "many " + content["many"][level][randomTextContent];
+                    textObj[1].GetComponent<TextMesh>().text = "many " + content["many"][level][randomTextContent];
                     break;
                 case 2:
-                    text3d[2].GetComponent<TextMesh>().text = "much " + content["much"][randomTextContent]; 
+                    textObj[2].GetComponent<TextMesh>().text = "much " + content["much"][randomTextContent]; 
                     break;
                 case 3:
-                    text3d[3].GetComponent<TextMesh>().text = "very " + content["very"][level][randomTextContent];
+                    textObj[3].GetComponent<TextMesh>().text = "very " + content["very"][level][randomTextContent];
                     break;
                 case 4:
-                    text3d[4].GetComponent<TextMesh>().text = "so " + content["so"][randomTextContent] + " " + coinPercentage.ToString("0,00") + "%";
+                    textObj[4].GetComponent<TextMesh>().text = "so " + content["so"][randomTextContent] + " " + coinPercentage.ToString("0,00") + "%";
                     break;
             }
+
+            textObj[randomTextField].transform.position = textPos[randomTextField] + new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
             yield return new WaitForSeconds(refreshIntervalTEXT);
         }
     }    
@@ -198,44 +215,15 @@ public class newGet : MonoBehaviour
     {
         TextAsset t1 = Resources.Load<TextAsset>("txt");
         string text = t1.text;
-        //string text = System.IO.File.ReadAllText(path);
         Debug.Log("TEXTS JSON FILE " + text);
         var N = JSON.Parse(text);
         content = N;
     }
 
-    void RotateDoge()
-    {
-        doge.transform.Rotate(Vector3.up, 3 * Time.deltaTime);
-    }
-
-    void ShowLevelTexture()
-    {
-
-    }
-
-    /*
-    Quaternion RotateText()
-    {
-        var rotation : Quaternion;
-        var radius = Vector3(5, 0, 0);
-        var currentRotation = 0.0;
-
-        currentRotation += Time.deltaTime * 100;
-        rotation.eulerAngles = Vector3(0, currentRotation, 0);
-        transform.position = rotation * radius;
-    }
-    */
-
-        /*
-    float Remap(this float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }*/
 
 }
 
-/*
+
 public static class ExtensionMethods
 {
 
@@ -245,5 +233,5 @@ public static class ExtensionMethods
     }
 
 }
-*/
+
 
