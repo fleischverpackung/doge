@@ -2,5 +2,7 @@ Download Java JRE
 Download Android SDK (commandlineTools)
 Download Jave JDK
 
-Install JRE
-Install 
+SDK is in %AppData%Local/Android/sdk
+Delete All old Sdks before installing
+
+Install newest API, and Plattformtools + Export tools for target platform

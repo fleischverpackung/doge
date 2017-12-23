@@ -20,11 +20,11 @@ public class newGet : MonoBehaviour
     private Material[] dogelevelTextures;
 
     private string url = @"https://api.cryptonator.com/api/ticker/doge-eur";
-    string path = "Assets/Resources/texts.json";
+    //string path = "Assets/Resources/texts.json";
 
 
     GameObject cam;
-    GameObject shiba;
+    GameObject doge;
     TextMesh[] textfields;
     GameObject[] text3d;
     JSONNode content;
@@ -42,12 +42,14 @@ public class newGet : MonoBehaviour
 
     void Start()
     {
-        //text3d = GameObject.FindGameObjectsWithTag("text");
+        text3d = GameObject.FindGameObjectsWithTag("text");
+        /*
         text3d[0] = GameObject.Find("txt_wow");
         text3d[1] = GameObject.Find("txt_many");
         text3d[2] = GameObject.Find("txt_so");
         text3d[3] = GameObject.Find("txt_very");
         text3d[4] = GameObject.Find("txt_much");        
+        */
 
         debug_gyro = GameObject.Find("text_gyro").GetComponent<Text>();
         debug_http = GameObject.Find("text_http").GetComponent<Text>();
@@ -59,14 +61,16 @@ public class newGet : MonoBehaviour
         bigTexture = GameObject.Find("LevelTexture").GetComponent<MeshRenderer>();
         particles = GameObject.Find("ParticleSystem").GetComponent<ParticleSystem>();
         cam = GameObject.FindGameObjectWithTag("MainCamera");
-        shiba = GameObject.Find("Doge");
+        doge = GameObject.Find("Doge");
 
 
-
+        
 
         Input.gyro.enabled = true;
 
         StartCoroutine(GetUrl());
+
+        //moveCamera();
 
         ReadFile();
 
@@ -82,7 +86,14 @@ public class newGet : MonoBehaviour
         
 
         RotateDoge();
-        shiba.transform.Rotate(deviceRotation);
+        //doge.transform.Rotate(deviceRotation);
+    }
+
+    void moveCamera()
+    {
+        var dogePos = doge.transform.position;
+        Debug.Log("dogepos: " + dogePos);
+        cam.transform.LookAt(dogePos);
     }
 
   
@@ -111,7 +122,7 @@ public class newGet : MonoBehaviour
                     PlayDogeAudio();
                     StartCoroutine(ShowDogeTexture());
 
-                //    particles.emission.rateOverTime = 100f;
+                   //particles.emission.rateOverTime = 100f;
 
                     coinPercentage = (100 / coinReferenceValue) * price;
 
@@ -188,7 +199,9 @@ public class newGet : MonoBehaviour
 
     void ReadFile()
     {
-        string text = System.IO.File.ReadAllText(path);
+        TextAsset t1 = Resources.Load<TextAsset>("txt");
+        string text = t1.text;
+        //string text = System.IO.File.ReadAllText(path);
         Debug.Log("TEXTS JSON FILE " + text);
         var N = JSON.Parse(text);
         content = N;
@@ -196,7 +209,7 @@ public class newGet : MonoBehaviour
 
     void RotateDoge()
     {
-        shiba.transform.Rotate(Vector3.up, 3 * Time.deltaTime);
+        doge.transform.Rotate(Vector3.up, 3 * Time.deltaTime);
     }
 
     void ShowLevelTexture()
