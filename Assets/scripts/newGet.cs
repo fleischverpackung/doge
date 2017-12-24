@@ -79,7 +79,7 @@ public class newGet : MonoBehaviour
     private void Update()
     {
         Vector3 deviceRotation = Input.gyro.attitude.eulerAngles;
-        coinTarget = Mathf.Round(ExtensionMethods.Remap(coinPercentage, 0, 300, 0, 500));
+        coinTarget = Mathf.Round(ExtensionMethods.Remap(coinPercentage, 0, 300, 0, 250));
         doge.transform.Rotate(Vector3.up, 3 * Time.deltaTime);
         MoveCamera();
     }
@@ -144,7 +144,7 @@ public class newGet : MonoBehaviour
             int spawnedCoins = GameObject.FindGameObjectsWithTag("coin").Length;
             if (spawnedCoins < coinTarget)
             {
-                Vector3 pos = new Vector3(Random.Range(-dropArea, dropArea), Random.Range(-dropArea, dropArea), Random.Range(3, 4));
+                Vector3 pos = new Vector3(Random.Range(-5.2f, 5.2f), Random.Range(-2, 4f), Random.Range(3, 4));
                 Instantiate(coin, pos, Quaternion.identity);
                 _audioSource.PlayOneShot(coinAudio[Random.Range(0, coinAudio.Length)]);
             }
@@ -226,12 +226,10 @@ public class newGet : MonoBehaviour
 
 public static class ExtensionMethods
 {
-
     public static float Remap(this float value, float from1, float to1, float from2, float to2)
     {
         return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
     }
-
 }
 
 
